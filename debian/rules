@@ -1,16 +1,20 @@
 #!/usr/bin/make -f
 %:
-	dh $@ --parallel
+	dh $@ --parallel --with=python2
 
 override_dh_auto_build:
 	dh_auto_build
-	PYTHONPATH=.. make --directory doc/ html
+#	python setup.py build
+	-PYTHONPATH=.. make --directory doc/ html
 
 override_dh_auto_clean:
 	dh_auto_clean
 	rm -f gevent/*.so
 	cd doc && make clean
 	rm -f doc/changelog.rst
+
+override_dh_install:
+	python setup.py install --root=debian/python-gevent --prefix=/usr
 
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
