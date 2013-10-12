@@ -4,7 +4,7 @@
 
 override_dh_auto_build:
 	dh_auto_build
-#	python setup.py build
+	python setup.py build
 	-PYTHONPATH=.. make --directory doc/ html
 
 override_dh_auto_clean:
@@ -22,7 +22,6 @@ override_dh_compress:
 override_dh_strip:
 ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
 	dh_strip --dbg-package=python-gevent-dbg
-	cd debian/python-gevent-dbg/usr/lib/debug/usr/lib && mv pyshared pymodules
 endif
 
 override_dh_installdocs:
