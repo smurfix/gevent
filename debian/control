@@ -3,7 +3,8 @@ Priority: extra
 Maintainer: Örjan Persson <orange@fobie.net>
 Uploaders: Andreas Schuldei <andreas@debian.org>
 Build-Depends: debhelper (>= 7.0.50), python-support, python-all-dev, python-all-dbg,
- libev-dev, libc-ares-dev, python-greenlet, python-sphinx (>= 0.6)
+ libev-dev, libc-ares-dev, python-greenlet, python-sphinx (>= 0.6),
+ cython (>= 0.15)
 Standards-Version: 3.9.2
 Section: python
 Homepage: http://www.gevent.org/
