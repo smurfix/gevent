@@ -1,3 +1,9 @@
+python-gevent (1.0~b3-3) smurf; urgency=low
+
+  * Use the system's ev and c-ares libraries.
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sat, 12 Oct 2013 10:42:35 +0200
+
 python-gevent (1.0~b3-2) smurf; urgency=low
 
   * Depend on Cython for build testing.
