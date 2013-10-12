@@ -51,7 +51,6 @@ def missing_reference(app, env, node, contnode):
             if i_aliasname.endswith(target):
                 stripped_aliasname = i_aliasname[len(docname):]
                 if stripped_aliasname:
-                    assert stripped_aliasname[0] == '.', repr(stripped_aliasname)
                     stripped_aliasname = stripped_aliasname[1:]
                     if stripped_aliasname == target:
                         if noisy >= 1:
