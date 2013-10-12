@@ -5,3 +5,7 @@ gevent.*.[ch]
 gevent/core.pyx
 *.egg-info
 
+doc/changelog.rst
+doc/gevent.win32util.rst
+doc/gevent.wsgi.rst
+doc/_build
