@@ -6,6 +6,9 @@ gevent/core.pyx
 *.egg-info
 
 doc/changelog.rst
-doc/gevent.win32util.rst
-doc/gevent.wsgi.rst
 doc/_build
+doc/gevent.*.rst
+!doc/gevent.core.rst
+!doc/gevent.event.rst
+!doc/gevent.hub.rst
+!doc/gevent.queue.rst
