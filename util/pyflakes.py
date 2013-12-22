@@ -6,6 +6,7 @@ import subprocess
 
 IGNORED = r'''
 gevent/socket.py:\d+: undefined name
+gevent/socket.py:\d+: '(sslerror|SSLType|ssl)' imported but unused
 gevent/subprocess.py:\d+: undefined name
 gevent/ssl.py:\d+: undefined name
 gevent/__init__.py:\d+:.*imported but unused
