@@ -9,6 +9,7 @@ import pipes
 import difflib
 from hashlib import md5
 
+do_exec = None
 if sys.version_info >= (3, 0):
     exec("def do_exec(co, loc): exec(co, loc)\n")
 else:
@@ -388,7 +389,9 @@ def simplify_tags(tags):
     >>> simplify_tags([set([('defined(world)', True), ('defined(hello)', True)]),
     ...                set([('defined(world)', False), ('defined(hello)', True)])])
     [set([('defined(hello)', True)])]
-    >>> simplify_tags([set([('defined(LIBEV_EMBED)', True), ('defined(_WIN32)', True)]), set([('defined(LIBEV_EMBED)', True), ('defined(_WIN32)', False)]), set([('defined(_WIN32)', False), ('defined(LIBEV_EMBED)', False)]), set([('defined(LIBEV_EMBED)', False), ('defined(_WIN32)', True)])])
+    >>> simplify_tags([set([('defined(LIBEV_EMBED)', True), ('defined(_WIN32)', True)]), set([('defined(LIBEV_EMBED)', True),
+    ... ('defined(_WIN32)', False)]), set([('defined(_WIN32)', False), ('defined(LIBEV_EMBED)', False)]),
+    ... set([('defined(LIBEV_EMBED)', False), ('defined(_WIN32)', True)])])
     []
     """
     if not isinstance(tags, list):
@@ -516,6 +519,8 @@ def atomic_write(filename, data):
     f.flush()
     os.fsync(f.fileno())
     f.close()
+    if os.path.exists(filename):
+        os.unlink(filename)
     os.rename(tmpname, filename)
     dbg('Wrote %s bytes to %s', len(data), filename)
 
@@ -739,8 +744,8 @@ def combinations(iterable, r):
         else:
             return
         indices[i] += 1
-        for j in range(i+1, r):
-            indices[j] = indices[j-1] + 1
+        for j in range(i + 1, r):
+            indices[j] = indices[j - 1] + 1
         yield tuple(pool[i] for i in indices)
 
 
@@ -750,7 +755,7 @@ def product(*args, **kwds):
     pools = tuple(map(tuple, args)) * kwds.get('repeat', 1)
     result = [[]]
     for pool in pools:
-        result = [x+[y] for x in result for y in pool]
+        result = [x + [y] for x in result for y in pool]
     for prod in result:
         yield tuple(prod)
 

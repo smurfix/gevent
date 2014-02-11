@@ -9,7 +9,7 @@ See http://www.gevent.org/ for the documentation.
 from __future__ import absolute_import
 
 version_info = (1, 0, 0, 'dev', None)
-__version__ = '1.0dev'
+__version__ = '1.0'
 
 
 __all__ = ['get_hub',
@@ -42,8 +42,6 @@ try:
     from gevent.os import fork
 except ImportError:
     __all__.remove('fork')
-
-run = wait  # XXX to be deleted (soon)
 
 
 # the following makes hidden imports visible to freezing tools like
