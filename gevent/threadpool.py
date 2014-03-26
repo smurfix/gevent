@@ -1,5 +1,5 @@
 # Copyright (c) 2012 Denis Bilenko. See LICENSE for details.
-from __future__ import with_statement, absolute_import
+from __future__ import absolute_import
 import sys
 import os
 from gevent.hub import get_hub, getcurrent, sleep, integer_types
@@ -325,5 +325,5 @@ class ThreadResult(object):
 def wrap_errors(errors, function, args, kwargs):
     try:
         return True, function(*args, **kwargs)
-    except errors:
-        return False, sys.exc_info()[1]
+    except errors as ex:
+        return False, ex

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """gevent build & installation script"""
+from __future__ import print_function
 import sys
 import os
 import re
@@ -108,7 +109,7 @@ def make_universal_header(filename, *defines):
                 if line.startswith(prefix):
                     line = '#ifdef __LP64__\n#define %s 8\n#else\n#define %s 4\n#endif' % (define, define)
                     break
-        print >>f, line
+        print(line, file=f)
     f.close()
 
 
@@ -300,7 +301,6 @@ def run_setup(ext_modules):
         install_requires=['greenlet'],
         classifiers=[
             "License :: OSI Approved :: MIT License",
-            "Programming Language :: Python :: 2.5",
             "Programming Language :: Python :: 2.6",
             "Programming Language :: Python :: 2.7",
             "Operating System :: MacOS :: MacOS X",

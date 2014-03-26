@@ -20,7 +20,6 @@
 # THE SOFTWARE.
 
 # package is named greentest, not test, so it won't be confused with test in stdlib
-from __future__ import with_statement
 import sys
 import unittest
 from unittest import TestCase as BaseTestCase
@@ -101,6 +100,8 @@ def wrap_refcount(method):
                 self.tearDown()
                 if 'urlparse' in sys.modules:
                     sys.modules['urlparse'].clear_cache()
+                if 'urllib.parse' in sys.modules:
+                    sys.modules['urllib.parse'].clear_cache()
                 d = gettotalrefcount() - d
                 deltas.append(d)
                 # the following configurations are classified as "no leak"
@@ -296,8 +297,7 @@ def test_outer_timeout_is_not_lost(self):
     try:
         try:
             result = self.wait(timeout=1)
-        except gevent.Timeout:
-            ex = sys.exc_info()[1]
+        except gevent.Timeout as ex:
             assert ex is timeout, (ex, timeout)
         else:
             raise AssertionError('must raise Timeout (returned %r)' % (result, ))
@@ -346,8 +346,7 @@ class GenericGetTestCase(TestCase):
         timeout = gevent.Timeout(0.01)
         try:
             self.wait(timeout=timeout)
-        except gevent.Timeout:
-            ex = sys.exc_info()[1]
+        except gevent.Timeout as ex:
             assert ex is timeout, (ex, timeout)
         delay = time.time() - start
         assert 0.01 - 0.001 <= delay < 0.01 + 0.01 + 0.1, delay
@@ -359,8 +358,7 @@ class GenericGetTestCase(TestCase):
         timeout = gevent.Timeout(0.01, exception=error)
         try:
             self.wait(timeout=timeout)
-        except RuntimeError:
-            ex = sys.exc_info()[1]
+        except RuntimeError as ex:
             assert ex is error, (ex, error)
         delay = time.time() - start
         assert 0.01 - 0.001 <= delay < 0.01 + 0.01 + 0.1, delay

@@ -24,11 +24,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
 import sys
 from code import InteractiveConsole
 
 from gevent import socket
 from gevent.greenlet import Greenlet
+from gevent.hub import PY3
 from gevent.server import StreamServer
 
 __all__ = ['BackdoorServer']
@@ -70,11 +72,16 @@ class SocketConsole(Greenlet):
                 # __builtin__.__dict__ in the latter case typing
                 # locals() at the backdoor prompt spews out lots of
                 # useless stuff
-                import __builtin__
-                console.locals["__builtins__"] = __builtin__
+                try:
+                    import __builtin__
+                    console.locals["__builtins__"] = __builtin__
+                except ImportError:
+                    import builtins
+                    console.locals["builtins"] = builtins
                 console.interact(banner=self.banner)
             except SystemExit:  # raised by quit()
-                sys.exc_clear()
+                if not PY3:
+                    sys.exc_clear()
         finally:
             self.switch_out()
             self.finalize()
@@ -109,6 +116,6 @@ class _fileobject(socket._fileobject):
 
 if __name__ == '__main__':
     if not sys.argv[1:]:
-        print ('USAGE: %s PORT' % sys.argv[0])
+        print('USAGE: %s PORT' % sys.argv[0])
     else:
         BackdoorServer(('127.0.0.1', int(sys.argv[1]))).serve_forever()

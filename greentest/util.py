@@ -1,13 +1,13 @@
-from __future__ import with_statement
 import sys
 import os
 import re
+import six
 import traceback
 import unittest
 import threading
+import subprocess
 import time
 from datetime import timedelta
-from gevent import subprocess, sleep, spawn_later
 
 
 SLEEP = 0.1
@@ -50,10 +50,10 @@ def killpg(pid):
         return
     try:
         return os.killpg(pid, 9)
-    except OSError, ex:
+    except OSError as ex:
         if ex.errno != 3:
             log('killpg(%r, 9) failed: %s: %s', pid, type(ex).__name__, ex)
-    except Exception, ex:
+    except Exception as ex:
         log('killpg(%r, 9) failed: %s: %s', pid, type(ex).__name__, ex)
 
 
@@ -68,7 +68,7 @@ def _kill(popen):
     if hasattr(popen, 'kill'):
         try:
             popen.kill()
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno == 3:  # No such process
                 return
             if ex.errno == 13:  # Permission denied (translated from windows error 5: "Access is denied")
@@ -82,6 +82,8 @@ def _kill(popen):
 
 
 def kill(popen):
+    if popen.poll() is not None:
+        return
     try:
         if getattr(popen, 'setpgrp_enabled', None):
             killpg(popen.pid)
@@ -109,7 +111,7 @@ def getname(command, env=None, setenv=None):
         if key.startswith('GEVENT_') or key.startswith('GEVENTARES_'):
             result.append('%s=%s' % (key, value))
 
-    if isinstance(command, basestring):
+    if isinstance(command, six.string_types):
         result.append(command)
     else:
         result.extend(command)
@@ -139,10 +141,9 @@ def start(command, **kwargs):
     popen.name = name
     popen.setpgrp_enabled = preexec_fn is not None
     if timeout is not None:
-        popen._killer = spawn_later(timeout, kill, popen)
-        popen._killer._start_event.ref = False   # XXX add 'ref' property to greenlet
-    else:
-        popen._killer = None
+        t = threading.Timer(timeout, kill, args=(popen, ))
+        t.setDaemon(True)
+        t.start()
     return popen
 
 
@@ -153,11 +154,18 @@ class RunResult(object):
         self.output = output
         self.name = name
 
-    def __nonzero__(self):
-        return bool(self.code)
+    if six.PY3:
+        def __bool__(self):
+            return bool(self.code)
+    else:
+        def __nonzero__(self):
+            return bool(self.code)
 
     def __int__(self):
         return self.code
+
+
+lock = threading.Lock()
 
 
 def run(command, **kwargs):
@@ -177,28 +185,27 @@ def run(command, **kwargs):
         else:
             result = popen.poll()
     finally:
-        if popen._killer is not None:
-            popen._killer.kill(block=False)
         kill(popen)
     assert not err
-    if out:
-        out = out.strip()
+    with lock:
         if out:
-            out = '  ' + out.replace('\n', '\n  ')
-            out = out.rstrip()
-            out += '\n'
-            log('| %s\n%s', name, out)
-    if result:
-        log('! %s [code %s] [took %.1fs]', name, result, took)
-    else:
-        log('- %s [took %.1fs]', name, took)
+            out = out.strip().decode()
+            if out:
+                out = '  ' + out.replace('\n', '\n  ')
+                out = out.rstrip()
+                out += '\n'
+                log('| %s\n%s', name, out)
+        if result:
+            log('! %s [code %s] [took %.1fs]', name, result, took)
+        else:
+            log('- %s [took %.1fs]', name, took)
     if took >= MIN_RUNTIME:
         runtimelog.append((-took, name))
     return RunResult(result, out, name)
 
 
 def parse_command(parts):
-    if isinstance(parts, basestring):
+    if isinstance(parts, six.string_types):
         parts = parts.split()
     environ = []
     if parts[0] == '-':
@@ -260,9 +267,9 @@ def match_environ(expected_environ, actual_environ):
     """
     if expected_environ is None:
         return True
-    if isinstance(expected_environ, basestring):
+    if isinstance(expected_environ, six.string_types):
         expected_environ = expected_environ.split()
-    if isinstance(actual_environ, basestring):
+    if isinstance(actual_environ, six.string_types):
         actual_environ = actual_environ.split()
     expected_environ = dict(x.split('=') for x in expected_environ)
     actual_environ = dict(x.split('=') for x in actual_environ)
@@ -376,12 +383,12 @@ class TestServer(unittest.TestCase):
 
     def before(self):
         if self.before_delay is not None:
-            sleep(self.before_delay)
+            time.sleep(self.before_delay)
         assert self.popen.poll() is None, '%s died with code %s' % (self.server, self.popen.poll(), )
 
     def after(self):
         if self.after_delay is not None:
-            sleep(self.after_delay)
+            time.sleep(self.after_delay)
             assert self.popen.poll() is None, '%s died with code %s' % (self.server, self.popen.poll(), )
 
     def _run_all_tests(self):

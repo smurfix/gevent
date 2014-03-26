@@ -14,6 +14,9 @@ else:
     SETBINARY = ''
 
 
+python_universal_newlines = hasattr(sys.stdout, 'newlines')
+
+
 class Test(greentest.TestCase):
 
     def test_exit(self):
@@ -28,7 +31,7 @@ class Test(greentest.TestCase):
     def test_child_exception(self):
         try:
             subprocess.Popen(['*']).wait()
-        except OSError, ex:
+        except OSError as ex:
             assert ex.errno == 2, ex
         else:
             raise AssertionError('Expected OSError: [Errno 2] No such file or directory')
@@ -75,7 +78,7 @@ class Test(greentest.TestCase):
                              universal_newlines=1)
         try:
             stdout = p.stdout.read()
-            if hasattr(file, 'newlines'):
+            if python_universal_newlines:
                 # Interpreter with universal newline support
                 self.assertEqual(stdout,
                                  "line1\nline2\nline3\nline4\nline5\nline6")
@@ -102,7 +105,7 @@ class Test(greentest.TestCase):
                              universal_newlines=1)
         try:
             stdout = p.stdout.read()
-            if hasattr(file, 'newlines'):
+            if python_universal_newlines:
                 # Interpreter with universal newline support
                 self.assertEqual(stdout,
                                  "line1\nline2\nline3\nline4\nline5\nline6")
@@ -131,8 +134,7 @@ class Test(greentest.TestCase):
         for i in range(7):
             try:
                 subprocess.Popen('this_name_must_not_exist')
-            except OSError:
-                ex = sys.exc_info()[1]
+            except OSError as ex:
                 if ex.errno != errno.ENOENT:
                     raise
             else:
@@ -141,7 +143,7 @@ class Test(greentest.TestCase):
     def test_check_output_keyword_error(self):
         try:
             subprocess.check_output([sys.executable, '-c', 'import sys; sys.exit(44)'])
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             self.assertEqual(e.returncode, 44)
         else:
             raise AssertionError('must fail with CalledProcessError')
