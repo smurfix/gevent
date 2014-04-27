@@ -3,6 +3,7 @@ build/
 *.so
 gevent.*.[ch]
 gevent/core.pyx
+gevent/__pycache__
 *.egg-info
 
 doc/changelog.rst
