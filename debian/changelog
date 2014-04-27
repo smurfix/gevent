@@ -1,3 +1,9 @@
+python-gevent (1.1.0~dev-2) smurf; urgency=low
+
+  * Fix Debian packaging
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sun, 27 Apr 2014 20:44:11 +0200
+
 python-gevent (1.1.0~dev-1) smurf; urgency=low
 
   * Upstream merge

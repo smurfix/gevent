@@ -13,7 +13,7 @@ Homepage: http://www.gevent.org/
 Package: python-gevent-dbg
 Section: debug
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python-gevent (= ${binary:Version})
+Depends: ${shlibs:Depends}, python-gevent (= ${binary:Version})
 Recommends: python-dbg
 Description: gevent is a coroutine-based Python networking library - debugging symbols
  gevent uses greenlet to provide a high-level synchronous API on top of the
@@ -24,7 +24,7 @@ Description: gevent is a coroutine-based Python networking library - debugging s
 Package: python3-gevent-dbg
 Section: debug
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python-gevent (= ${binary:Version})
+Depends: ${shlibs:Depends}, python3-gevent (= ${binary:Version})
 Recommends: python3-dbg
 Description: gevent is a coroutine-based Python networking library - debugging symbols
  gevent uses greenlet to provide a high-level synchronous API on top of the
@@ -35,7 +35,7 @@ Description: gevent is a coroutine-based Python networking library - debugging s
 Package: python-gevent-doc
 Section: doc
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, libjs-jquery, libjs-underscore
+Depends: ${shlibs:Depends}, libjs-jquery, libjs-underscore
 Priority: optional
 Description: gevent is a coroutine-based Python networking library - documentation
  gevent uses greenlet to provide a high-level synchronous API on top of the
@@ -46,7 +46,7 @@ Description: gevent is a coroutine-based Python networking library - documentati
 Package: python-gevent
 Section: python
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-greenlet
+Depends: ${shlibs:Depends}, ${python:Depends}, python-greenlet
 Suggests: python-gevent-doc, python-gevent-dbg, python-openssl
 Description: gevent is a coroutine-based Python networking library
  gevent uses greenlet to provide a high-level synchronous API on top of the
@@ -55,7 +55,7 @@ Description: gevent is a coroutine-based Python networking library
 Package: python3-gevent
 Section: python
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-greenlet
+Depends: ${shlibs:Depends}, ${python:Depends}, python3-greenlet
 Suggests: python-gevent-doc, python3-gevent-dbg, python-openssl
 Description: gevent is a coroutine-based Python networking library
  gevent uses greenlet to provide a high-level synchronous API on top of the
