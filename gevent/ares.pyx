@@ -7,6 +7,12 @@ from _socket import gaierror
 
 __all__ = ['channel']
 
+cdef object basestring
+
+if sys.version_info[0] >= 3:
+    basestring = (bytes, str)
+else:
+    basestring = __builtins__.basestring
 
 TIMEOUT = 1
 

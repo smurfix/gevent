@@ -2,12 +2,11 @@ from __future__ import absolute_import
 import sys
 import os
 import errno
-import types
 import gc
 import signal
 import traceback
 from gevent.event import AsyncResult
-from gevent.hub import get_hub, linkproxy, sleep, getcurrent
+from gevent.hub import get_hub, linkproxy, sleep, getcurrent, integer_types, string_types, xrange
 from gevent.fileobject import FileObject
 from gevent.greenlet import Greenlet, joinall
 spawn = Greenlet.spawn
@@ -176,7 +175,7 @@ class Popen(object):
                  cwd=None, env=None, universal_newlines=False,
                  startupinfo=None, creationflags=0, threadpool=None):
         """Create new Popen instance."""
-        if not isinstance(bufsize, (int, long)):
+        if not isinstance(bufsize, integer_types):
             raise TypeError("bufsize must be an integer")
         hub = get_hub()
 
@@ -397,7 +396,7 @@ class Popen(object):
                            errread, errwrite):
             """Execute program (MS Windows version)"""
 
-            if not isinstance(args, types.StringTypes):
+            if not isinstance(args, string_types):
                 args = list2cmdline(args)
 
             # Process startup details
@@ -439,7 +438,7 @@ class Popen(object):
                                                  env,
                                                  cwd,
                                                  startupinfo)
-            except pywintypes.error, e:
+            except pywintypes.error as e:
                 # Translate pywintypes.error to WindowsError, which is
                 # a subclass of OSError.  FIXME: We should really
                 # translate errno using _sys_errlist (or similar), but
@@ -618,7 +617,7 @@ class Popen(object):
                            errread, errwrite):
             """Execute program (POSIX version)"""
 
-            if isinstance(args, types.StringTypes):
+            if isinstance(args, string_types):
                 args = [args]
             else:
                 args = list(args)
@@ -747,7 +746,7 @@ class Popen(object):
                 else:
                     os.close(errpipe_read)
 
-            if data != "":
+            if data != b"":
                 self.wait()
                 child_exception = pickle.loads(data)
                 for fd in (p2cwrite, c2pread, errread):
@@ -800,7 +799,7 @@ def write_and_close(fobj, data):
     try:
         if data:
             fobj.write(data)
-    except (OSError, IOError), ex:
+    except (OSError, IOError) as ex:
         if ex.errno != errno.EPIPE and ex.errno != errno.EINVAL:
             raise
     finally:

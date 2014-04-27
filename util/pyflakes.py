@@ -1,24 +1,31 @@
 #!/usr/bin/python
+from __future__ import print_function
 import sys
 import re
 import subprocess
+import glob
 
 
 IGNORED = r'''
 gevent/socket.py:\d+: undefined name
-gevent/socket.py:\d+: '(sslerror|SSLType|ssl)' imported but unused
+gevent/_socket[23].py:\d+: undefined name
+gevent/_socketcommon.py:\d+: undefined name
+gevent/_socketcommon.py:\d+: .*imported but unused
 gevent/subprocess.py:\d+: undefined name
-gevent/ssl.py:\d+: undefined name
+gevent/_?ssl[23]?.py:\d+: undefined name
 gevent/__init__.py:\d+:.*imported but unused
 gevent/__init__.py:\d+: redefinition of unused 'signal' from line
 gevent/coros.py:\d+: 'from gevent.lock import *' used; unable to detect undefined names
 gevent/coros.py:\d+: '__all__' imported but unused
+gevent/hub.py:\d+: 'reraise' imported but unused
 gevent/thread.py:\d+: '_local' imported but unused
 gevent/threading.py:\d+: '\w+' imported but unused
 gevent/wsgi.py:1: 'from gevent.pywsgi import *' used; unable to detect undefined names
 examples/webchat/urls.py:1: 'from django.conf.urls.defaults import *' used; unable to detect undefined names
 greentest/test__queue.py:\d+: undefined name 'GenericGetTestCase'
 greentest/test__server_pywsgi.py:
+gevent/core.py:\d+: 'from gevent.corecffi import *' used; unable to detect undefined names
+gevent/core.py:\d+: 'from gevent.corecext import *' used; unable to detect undefined names
 '''
 
 IGNORED = IGNORED.strip().replace(' *', ' \\*').split('\n')
@@ -30,35 +37,47 @@ def is_ignored(line):
             return True
 
 
-popen = subprocess.Popen('%s `which pyflakes` gevent/ examples/ greentest/*.py util/ *.py' % sys.executable,
-                         shell=True,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-output, errors = popen.communicate()
+def pyflakes(args):
+    popen = subprocess.Popen('%s `which pyflakes` %s' % (sys.executable, args),
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+    output, errors = popen.communicate()
 
-if errors:
-    sys.stderr.write(errors.decode())
+    if errors:
+        sys.stderr.write(errors.decode())
 
-if popen.poll() != 1:
-    sys.stderr.write(output + '\n')
-    sys.exit('pyflakes returned %r' % popen.poll())
+    if popen.poll() != 1:
+        sys.stderr.write(output + '\n')
+        sys.exit('pyflakes returned %r' % popen.poll())
 
-if errors:
-    sys.exit(1)
+    if errors:
+        sys.exit(1)
 
-assert output
+    assert output
 
-output = output.strip().split('\n')
-failed = False
+    output = output.decode('utf-8')
+    output = output.strip().split('\n')
+    failed = False
+
+    for line in output:
+        line = line.strip()
+        if not is_ignored(line):
+            print('E %s' % line)
+            failed = True
+        #else:
+        #    print('I %s' % line)
+
+    if failed:
+        sys.exit(1)
 
 
-for line in output:
-    line = line.strip()
-    if not is_ignored(line):
-        print 'E %s' % line
-        failed = True
-    #else:
-    #    print 'I %s' % line
+pyflakes('examples/ greentest/*.py util/ *.py')
 
-if failed:
-    sys.exit(1)
+if sys.version_info[0] == 3:
+    ignored_files = ['gevent/_util_py2.py', 'gevent/_socket2.py']
+else:
+    ignored_files = ['gevent/_socket3.py']
+
+py = set(glob.glob('gevent/*.py')) - set(ignored_files)
+pyflakes(' '.join(py))

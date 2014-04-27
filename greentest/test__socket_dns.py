@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
-import sys
+import six
 import re
 import greentest
 import socket
@@ -9,6 +8,7 @@ from time import time
 import gevent
 import gevent.socket as gevent_socket
 from util import log
+from six import xrange
 
 
 resolver = gevent.get_hub().resolver
@@ -29,8 +29,8 @@ def _run(function, *args):
         result = function(*args)
         assert not isinstance(result, BaseException), repr(result)
         return result
-    except Exception:
-        return sys.exc_info()[1]
+    except Exception as ex:
+        return ex
 
 
 def format_call(function, args):
@@ -93,8 +93,8 @@ def compare_relaxed(a, b):
     False
     """
     if a.count(':') == 5 and b.count(':') == 5:
-        # QQQ not actually sure if this is right thing to do
-        return a.rsplit(':')[:2] == b.rsplit(':')[:2]
+        # IPv6 address from different requests might be different
+        return True
     return a.split('.', 1)[-1] == b.split('.', 1)[-1]
 
 
@@ -123,7 +123,7 @@ def relaxed_is_equal(a, b):
         return False
     if a == b:
         return True
-    if isinstance(a, basestring):
+    if isinstance(a, six.string_types):
         return compare_relaxed(a, b)
     if len(a) != len(b):
         return False
@@ -306,8 +306,8 @@ class TestFamily(TestCase):
         try:
             result = function(*args)
             raise AssertionError('%s: Expected to raise %s, instead returned %r' % (function, error, result))
-        except Exception, ex:
-            if isinstance(error, basestring):
+        except Exception as ex:
+            if isinstance(error, six.string_types):
                 repr_error = error
             else:
                 repr_error = repr(error)

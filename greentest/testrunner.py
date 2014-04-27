@@ -1,36 +1,28 @@
 #!/usr/bin/env python
-import gevent
-gevent.get_hub('select')  # this is just to make sure we don't pass any fds to children
-from gevent import monkey; monkey.patch_all()
+from __future__ import print_function
+import six
 import sys
 import os
 import glob
 import traceback
-from time import time
+import time
 
-from gevent.pool import Pool
+from multiprocessing.pool import ThreadPool
 import util
 
 
 TIMEOUT = 180
 NWORKERS = int(os.environ.get('NWORKERS') or 8)
-pool = None
-
-
-def spawn(*args, **kwargs):
-    g = pool.spawn(*args, **kwargs)
-    g.link_exception(lambda *args: sys.exit('Internal error in testrunner.py: %s %s' % (g, g.exception)))
-    return g
 
 
 def run_many(tests, expected=None, failfast=False):
-    global NWORKERS, pool
-    start = time()
+    global NWORKERS
+    start = time.time()
     total = 0
     failed = {}
 
-    NWORKERS = min(len(tests), NWORKERS)
-    pool = Pool(NWORKERS)
+    NWORKERS = min(len(tests), NWORKERS) or 1
+    pool = ThreadPool(NWORKERS)
     util.BUFFER_OUTPUT = NWORKERS > 1
 
     def run_one(cmd, **kwargs):
@@ -43,32 +35,61 @@ def run_many(tests, expected=None, failfast=False):
             # we therefore will retry them sequentially
             failed[result.name] = [cmd, kwargs, 'AssertionError' in (result.output or '')]
 
+    results = []
+
+    def reap():
+        for r in results[:]:
+            if not r.ready():
+                continue
+            if r.successful():
+                results.remove(r)
+            else:
+                r.get()
+                sys.exit('Internal error in testrunner.py: %r' % (r, ))
+        return len(results)
+
+    def reap_all():
+        while reap() > 0:
+            time.sleep(0.1)
+
+    def spawn(args, kwargs):
+        while True:
+            if reap() < NWORKERS:
+                r = pool.apply_async(run_one, (cmd, ), options or {})
+                results.append(r)
+                return
+            else:
+                time.sleep(0.1)
+
     try:
         try:
             for cmd, options in tests:
                 total += 1
-                spawn(run_one, cmd, **(options or {}))
-            gevent.wait()
+                spawn((cmd, ), options or {})
+            pool.close()
+            pool.join()
         except KeyboardInterrupt:
             try:
-                if pool:
-                    util.log('Waiting for currently running to finish...')
-                    pool.join()
+                util.log('Waiting for currently running to finish...')
+                reap_all()
             except KeyboardInterrupt:
-                util.report(total, failed, exit=False, took=time() - start, expected=expected)
+                pool.terminate()
+                util.report(total, failed, exit=False, took=time.time() - start, expected=expected)
                 util.log('(partial results)\n')
                 raise
     except:
         traceback.print_exc()
-        pool.kill()  # this needed to kill the processes
+        pool.terminate()
         raise
+
+    reap_all()
 
     toretry = [key for (key, (cmd, kwargs, can_retry)) in failed.items() if can_retry]
     failed_then_succeeded = []
 
     if NWORKERS > 1 and toretry:
         util.log('\nWill retry %s failed tests sequentially:\n- %s\n', len(toretry), '\n- '.join(toretry))
-        for name, (cmd, kwargs, _ignore) in failed.items():
+        for name, (cmd, kwargs, _ignore) in list(failed.items()):
             if not util.run(cmd, buffer_output=False, **kwargs):
                 failed.pop(name)
                 failed_then_succeeded.append(name)
@@ -77,13 +98,11 @@ def run_many(tests, expected=None, failfast=False):
         util.log('\n%s tests failed during concurrent run but succeeded when ran sequentially:', len(failed_then_succeeded))
         util.log('- ' + '\n- '.join(failed_then_succeeded))
 
-    util.log('gevent version %s from %s', gevent.__version__, gevent.__file__)
-    util.report(total, failed, took=time() - start, expected=expected)
-    assert not pool, pool
+    util.report(total, failed, took=time.time() - start, expected=expected)
 
 
 def discover(tests=None, ignore=None):
-    if isinstance(ignore, basestring):
+    if isinstance(ignore, six.string_types):
         ignore = load_list_from_file(ignore)
 
     ignore = set(ignore or [])
@@ -130,17 +149,21 @@ def main():
     parser.add_option('--ignore')
     parser.add_option('--discover', action='store_true')
     parser.add_option('--full', action='store_true')
-    parser.add_option('--expected')
+    parser.add_option('--config')
     parser.add_option('--failfast', action='store_true')
     options, args = parser.parse_args()
-    options.expected = load_list_from_file(options.expected)
+    FAILING_TESTS = []
+    if options.config:
+        config = {}
+        six.exec_(open(options.config).read(), config)
+        FAILING_TESTS = config['FAILING_TESTS']
     tests = discover(args, options.ignore)
     if options.discover:
         for cmd, options in tests:
-            print util.getname(cmd, env=options.get('env'), setenv=options.get('setenv'))
-        print '%s tests found.' % len(tests)
+            print(util.getname(cmd, env=options.get('env'), setenv=options.get('setenv')))
+        print('%s tests found.' % len(tests))
     else:
-        run_many(tests, expected=options.expected, failfast=options.failfast)
+        run_many(tests, expected=FAILING_TESTS, failfast=options.failfast)
 
 
 if __name__ == '__main__':

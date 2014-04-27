@@ -8,7 +8,7 @@ from __future__ import absolute_import
 
 import os
 import sys
-from gevent.hub import get_hub, reinit
+from gevent.hub import get_hub, reinit, PY3
 import errno
 
 EAGAIN = getattr(errno, 'EAGAIN', 11)
@@ -49,10 +49,11 @@ if fcntl:
         while True:
             try:
                 return _read(fd, n)
-            except OSError, e:
+            except OSError as e:
                 if e.errno not in ignored_errors:
                     raise
-                sys.exc_clear()
+                if not PY3:
+                    sys.exc_clear()
             if hub is None:
                 hub = get_hub()
                 event = hub.loop.io(fd, 1)
@@ -68,10 +69,11 @@ if fcntl:
         while True:
             try:
                 return _write(fd, buf)
-            except OSError, e:
+            except OSError as e:
                 if e.errno not in ignored_errors:
                     raise
-                sys.exc_clear()
+                if not PY3:
+                    sys.exc_clear()
             if hub is None:
                 hub = get_hub()
                 event = hub.loop.io(fd, 2)
