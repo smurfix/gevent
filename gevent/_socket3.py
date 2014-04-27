@@ -3,7 +3,6 @@
 import io
 import time
 from gevent import _socketcommon
-from gevent.hub import text_type
 import _socket
 from io import BlockingIOError
 
@@ -209,7 +208,7 @@ class socket(_socket.socket):
         if self.timeout == 0.0:
             return _socket.socket.connect(self, address)
         if isinstance(address, tuple):
-            r = getaddrinfo(address[0], address[1], self.family, self.type, self.proto)
+            r = getaddrinfo(address[0], address[1], self.family)
             address = r[0][-1]
         if self.timeout is not None:
             timer = Timeout.start_new(self.timeout, timeout('timed out'))
@@ -288,15 +287,13 @@ class socket(_socket.socket):
                 raise
             self._wait(self._write_event)
             try:
-                return sock.send(data, flags)
+                return _socket.socket.send(self, data, flags)
             except error as ex2:
                 if ex2.args[0] == EWOULDBLOCK:
                     return 0
                 raise
 
     def sendall(self, data, flags=0):
-        if isinstance(data, text_type):
-            data = data.encode()
         if self.timeout is None:
             data_sent = 0
             while data_sent < len(data):

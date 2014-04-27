@@ -6,6 +6,10 @@ import greentest
 import gevent
 from gevent import subprocess
 import time
+import gc
+
+
+PYPY = hasattr(sys, 'pypy_version_info')
 
 
 if subprocess.mswindows:
@@ -18,6 +22,10 @@ python_universal_newlines = hasattr(sys.stdout, 'newlines')
 
 
 class Test(greentest.TestCase):
+
+    def setUp(self):
+        gc.collect()
+        gc.collect()
 
     def test_exit(self):
         popen = subprocess.Popen([sys.executable, '-c', 'import sys; sys.exit(10)'])
@@ -42,14 +50,17 @@ class Test(greentest.TestCase):
                              stdout=subprocess.PIPE)
         p.wait()
         del p
+        if PYPY:
+            gc.collect()
+            gc.collect()
         num_after = greentest.get_number_open_files()
         self.assertEqual(num_before, num_after)
 
     def test_communicate(self):
         p = subprocess.Popen([sys.executable, "-c",
-                             'import sys,os;'
-                             'sys.stderr.write("pineapple");'
-                             'sys.stdout.write(sys.stdin.read())'],
+                              'import sys,os;'
+                              'sys.stderr.write("pineapple");'
+                              'sys.stdout.write(sys.stdin.read())'],
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
@@ -62,18 +73,18 @@ class Test(greentest.TestCase):
 
     def test_universal1(self):
         p = subprocess.Popen([sys.executable, "-c",
-                             'import sys,os;' + SETBINARY +
-                             'sys.stdout.write("line1\\n");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line2\\r");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line3\\r\\n");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line4\\r");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("\\nline5");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("\\nline6");'],
+                              'import sys,os;' + SETBINARY +
+                              'sys.stdout.write("line1\\n");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line2\\r");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line3\\r\\n");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line4\\r");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("\\nline5");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("\\nline6");'],
                              stdout=subprocess.PIPE,
                              universal_newlines=1)
         try:
@@ -91,16 +102,16 @@ class Test(greentest.TestCase):
 
     def test_universal2(self):
         p = subprocess.Popen([sys.executable, "-c",
-                             'import sys,os;' + SETBINARY +
-                             'sys.stdout.write("line1\\n");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line2\\r");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line3\\r\\n");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("line4\\r\\nline5");'
-                             'sys.stdout.flush();'
-                             'sys.stdout.write("\\nline6");'],
+                              'import sys,os;' + SETBINARY +
+                              'sys.stdout.write("line1\\n");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line2\\r");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line3\\r\\n");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("line4\\r\\nline5");'
+                              'sys.stdout.flush();'
+                              'sys.stdout.write("\\nline6");'],
                              stdout=subprocess.PIPE,
                              universal_newlines=1)
         try:
