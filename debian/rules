@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 %:
-	dh $@ --parallel --with=python2,python3
+	dh $@ --with=python2,python3
 
 override_dh_auto_build:
 	dh_auto_build
@@ -19,11 +19,16 @@ override_dh_install:
 	python3 setup.py install --root=debian/python3-gevent --prefix=/usr
 
 	rm -f \
+	 	debian/python-gevent/usr/share/pyshared/gevent/_socket3.py \
+		debian/python-gevent/usr/share/pyshared/gevent/_ssl3.py \
 		debian/python-gevent/usr/lib/python2.7/dist-packages/gevent/_socket3.py \
-		debian/python-gevent/usr/share/pyshared/gevent/_socket3.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_ssl2.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_util_py2.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_socket2.py \
+		debian/python-gevent/usr/lib/python2.7/site-packages/gevent/_socket3.py \
+		debian/python-gevent/usr/lib/python2.7/dist-packages/gevent/_ssl3.py \
+		debian/python-gevent/usr/lib/python2.7/site-packages/gevent/_ssl3.py \
+		debian/python3-gevent/usr/lib/python3*/dist-packages/gevent/_ssl2.py \
+		debian/python3-gevent/usr/lib/python3*/dist-packages/gevent/_util_py2.py \
+		debian/python3-gevent/usr/lib/python3*/dist-packages/gevent/_socket2.py 
+
 
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
