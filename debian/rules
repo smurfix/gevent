@@ -7,12 +7,6 @@ override_dh_auto_build:
 	python setup.py build
 	python3 setup.py build
 	-PYTHONPATH=.. make --directory doc/ html
-	rm -f \
-		debian/python-gevent/usr/lib/python2.7/dist-packages/gevent/_socket3.py \
-		debian/python-gevent/usr/share/pyshared/gevent/_socket3.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_ssl2.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_util_py2.py \
-		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_socket2.py \
 
 override_dh_auto_clean:
 	dh_auto_clean
@@ -23,6 +17,13 @@ override_dh_auto_clean:
 override_dh_install:
 	python setup.py install --root=debian/python-gevent --prefix=/usr
 	python3 setup.py install --root=debian/python3-gevent --prefix=/usr
+
+	rm -f \
+		debian/python-gevent/usr/lib/python2.7/dist-packages/gevent/_socket3.py \
+		debian/python-gevent/usr/share/pyshared/gevent/_socket3.py \
+		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_ssl2.py \
+		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_util_py2.py \
+		debian/python3-gevent/usr/lib/python3/dist-packages/gevent/_socket2.py \
 
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
