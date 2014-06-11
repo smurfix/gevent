@@ -53,17 +53,22 @@ travistest:
 	${PYTHON} -c 'import greenlet; print(greenlet, greenlet.__version__)'
 
 	${PYTHON} setup.py install
+	make bench
 
 	cd greentest && GEVENT_RESOLVER=thread ${PYTHON} testrunner.py --config ../known_failures.py
 	cd greentest && GEVENT_RESOLVER=ares GEVENTARES_SERVERS=8.8.8.8 ${PYTHON} testrunner.py --config ../known_failures.py --ignore tests_that_dont_use_resolver.txt
 	cd greentest && GEVENT_FILE=thread ${PYTHON} testrunner.py --config ../known_failures.py `grep -l subprocess test_*.py`
+
+bench:
+	${PYTHON} greentest/bench_sendall.py
 
 travis_pypy:
 	# no need to repeat linters here
 	which ${PYTHON}
 	${PYTHON} --version
 	${PYTHON} setup.py install
-	NWORKERS=1 cd greentest && ${PYTHON} testrunner.py --config ../known_failures.py
+	make bench
+	cd greentest && ${PYTHON} testrunner.py --config ../known_failures.py
 
 travis_cpython:
 	make whitespace
@@ -75,7 +80,12 @@ travis_cpython:
 	PYTHON=python make pyflakes
 
 	sudo add-apt-repository -y ppa:chris-lea/cython
+
+	# somehow travis changed something and python2.6 and python3.3 no longer accessible anymore
+	sudo add-apt-repository -y ppa:fkrull/deadsnakes
 	sudo apt-get -qq -y update
+	sudo -E apt-get -qq -y install ${PYTHON} ${PYTHON}-dev
+
 	sudo apt-get -qq -y install cython
 	cython --version
 
