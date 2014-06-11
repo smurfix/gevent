@@ -1,12 +1,14 @@
 #!/usr/bin/make -f
 %:
 	dh $@ --with=python2,python3
+	make -f debian/rules killem
 
 override_dh_auto_build:
 	dh_auto_build
 	python setup.py build
 	python3 setup.py build
 	-PYTHONPATH=.. make --directory doc/ html
+	make -f debian/rules killem
 
 override_dh_auto_clean:
 	dh_auto_clean
@@ -17,8 +19,10 @@ override_dh_auto_clean:
 override_dh_install:
 	python setup.py install --root=debian/python-gevent --prefix=/usr
 	python3 setup.py install --root=debian/python3-gevent --prefix=/usr
+	make -f debian/rules killem
 
-	rm -f \
+killem:
+	@rm -f \
 	 	debian/python-gevent/usr/share/pyshared/gevent/_socket3.py \
 		debian/python-gevent/usr/share/pyshared/gevent/_ssl3.py \
 		debian/python-gevent/usr/lib/python2.7/dist-packages/gevent/_socket3.py \
