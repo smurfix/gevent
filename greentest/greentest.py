@@ -90,11 +90,12 @@ def wrap_refcount(method):
 
     @wraps(method)
     def wrapped(self, *args, **kwargs):
-        import gc
-        gc.disable()
+        gc.collect()
+        gc.collect()
         gc.collect()
         deltas = []
         d = None
+        gc.disable()
         try:
             while True:
                 d = gettotalrefcount()
@@ -131,7 +132,6 @@ def wrap_refcount(method):
                 if len(deltas) >= limit:
                     raise AssertionError('refcount increased by %r' % (deltas, ))
         finally:
-            gc.collect()
             gc.enable()
         self.skipTearDown = True
 
@@ -208,9 +208,7 @@ class TestCaseMetaClass(type):
         return type.__new__(meta, classname, bases, classDict)
 
 
-class TestCase(BaseTestCase):
-
-    __metaclass__ = TestCaseMetaClass
+class TestCase(TestCaseMetaClass("NewBase", (BaseTestCase,), {})):
     __timeout__ = 1
     switch_expected = 'default'
     error_fatal = True
