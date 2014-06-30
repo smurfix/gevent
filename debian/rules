@@ -1,12 +1,13 @@
 #!/usr/bin/make -f
 %:
-	dh $@ --with=python2,python3
+	dh $@ --with=python2,python3,pypy
 	make -f debian/rules killem
 
 override_dh_auto_build:
 	dh_auto_build
 	python setup.py build
 	python3 setup.py build
+	pypy setup.py build
 	-PYTHONPATH=.. make --directory doc/ html
 	make -f debian/rules killem
 
@@ -19,6 +20,19 @@ override_dh_auto_clean:
 override_dh_install:
 	python setup.py install --root=debian/python-gevent --prefix=/usr
 	python3 setup.py install --root=debian/python3-gevent --prefix=/usr
+	pypy setup.py install --root=debian/pypy-gevent --prefix=/usr
+	make -f debian/rules killem
+
+override_dh_python2:
+	dh_python2
+	make -f debian/rules killem
+
+override_dh_python3:
+	dh_python3
+	make -f debian/rules killem
+
+override_dh_pypy:
+	dh_pypy
 	make -f debian/rules killem
 
 killem:
