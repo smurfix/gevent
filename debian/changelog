@@ -1,3 +1,9 @@
+python-gevent (1.1.0~dev-6) smurf; urgency=medium
+
+  * Throw away the damn py2 version
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Fri, 03 Oct 2014 15:54:03 +0200
+
 python-gevent (1.1.0~dev-5) smurf; urgency=medium
 
   * Trying new build
