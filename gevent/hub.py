@@ -27,30 +27,13 @@ __all__ = ['getcurrent',
            'Waiter']
 
 
-PY3 = sys.version_info[0] >= 3
+from six import PY2,PY2,reraise,string_types,integer_types,text_type
 PYPY = hasattr(sys, 'pypy_version_info')
 
-
 if PY3:
-    string_types = str,
-    integer_types = int,
-    text_type = str
     xrange = range
-
-    def reraise(tp, value, tb=None):
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-
 else:
-    import __builtin__
-    string_types = __builtin__.basestring,
-    text_type = __builtin__.unicode
-    integer_types = (int, __builtin__.long)
     xrange = __builtin__.xrange
-
-    from gevent._util_py2 import reraise
-
 
 if sys.version_info[0] <= 2:
     import thread

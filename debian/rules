@@ -3,7 +3,7 @@
 export PYBUILD_NAME=gevent
 
 %:
-	dh $@ --with=python3 --buildsystem=pybuild
+	dh $@ --with=python2,python3 --buildsystem=pybuild
 
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
