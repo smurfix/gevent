@@ -1,0 +1,9 @@
+*.log
+*.substvars
+*.debhelper
+python-gevent/
+python-gevent-dbg/
+python3-gevent/
+python3-gevent-dbg/
+python-gevent-doc/
+files
