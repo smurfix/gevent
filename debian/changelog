@@ -1,51 +1,97 @@
-python-gevent (1.0.2~fantix-1) smurf; urgency=low
+python-gevent (1.0.1-2) unstable; urgency=medium
 
-  * Upstream merge
+  * Add dh-python to Build-Depends.
 
- -- Matthias Urlichs <matthias@urlichs.de>  Sun, 27 Apr 2014 18:53:55 +0200
+  [ Jan Gerber <j@mailb.org> ]
+  * Use PROTOCOL_SSLv23 instead of PROTOCOL_SSLv3 (closes: #770616).
 
-python-gevent (1.0~b3-4) smurf; urgency=low
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Sat, 13 Dec 2014 05:54:50 +0000
 
-  * Require newer Greenlet version.
+python-gevent (1.0.1-1) unstable; urgency=low
 
- -- Matthias Urlichs <matthias@urlichs.de>  Sat, 12 Oct 2013 11:36:26 +0200
+  * New upstream release, fixes thread switch detection (closes: #694750).
+  * Fix sphinx build problem (closes: #700731).
+  * Tighten greenlet dependency (closes: #747283).
+  * Update Standards-Version to 3.9.6 .
+  * Sync with Ubuntu.
 
-python-gevent (1.0~b3-3) smurf; urgency=low
+  [ Matthias Klose <doko@ubuntu.com> ]
+  * Fix build failure with python2.7 and PEP 466 (closes: #764499).
 
-  * Use the system's ev and c-ares libraries.
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Wed, 08 Oct 2014 16:20:29 +0000
 
- -- Matthias Urlichs <matthias@urlichs.de>  Sat, 12 Oct 2013 10:42:35 +0200
+python-gevent (1.0-2) unstable; urgency=low
 
-python-gevent (1.0~b3-2) smurf; urgency=low
+  * Sync with Ubuntu, thanks to Sebastian Ramacher for the heads-up.
 
-  * Depend on Cython for build testing.
+  [ Matthias Klose <doko@ubuntu.com> ]
+  * Fix build failure on arm64 (closes: #738750).
 
- -- Matthias Urlichs <matthias@urlichs.de>  Sat, 12 Oct 2013 09:24:04 +0200
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Sat, 26 Apr 2014 17:58:50 +0200
 
-python-gevent (1.0~b3-1) smurf; urgency=low
+python-gevent (1.0-1) unstable; urgency=low
 
-  * Update to beta3
+  * New upstream release (closes: #733600).
+  * Update Standards-Version to 3.9.5 .
 
- -- Matthias Urlichs <matthias@urlichs.de>  Sat, 12 Oct 2013 09:12:52 +0200
+  [ Bart Martens <bartm@debian.org> ]
+  * Update watch file.
 
-python-gevent (1.0~b1-1) experimental; urgency=low
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Sat, 01 Feb 2014 20:58:30 +0100
 
-  * New upstream version.
+python-gevent (0.13.7-4) unstable; urgency=low
 
- -- Örjan Persson <orange@fobie.net>  Mon, 16 Jan 2012 22:02:48 +0100
+  * Last bits of -dbg package fix (closes: #703611).
 
-python-gevent (1.0~a3-1) experimental; urgency=low
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Sun, 24 Mar 2013 01:18:51 +0100
 
-  * New upstream version.
+python-gevent (0.13.7-3) unstable; urgency=low
 
- -- Örjan Persson <orange@fobie.net>  Wed, 26 Oct 2011 21:54:21 +0200
+  * Build standard documentation.
 
-python-gevent (0.13.6-2) unstable; urgency=low
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Fri, 22 Mar 2013 17:05:07 +0100
 
-  * Added dependency on libjs-underscore. Thanks to Nick Barkas for patch.
-  * Fixed debug package. Thanks to Nick Barkas for patch.
+python-gevent (0.13.7-2) unstable; urgency=low
 
- -- Örjan Persson <orange@fobie.net>  Wed, 19 Oct 2011 20:00:59 +0200
+  * Fix -dbg package (closes: #703611).
+  * Use offline intersphinx inventory instead of download it.
+  * Remove unneeded python-support from build dependencies (closes: #703625).
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Fri, 22 Mar 2013 09:34:15 +0000
+
+python-gevent (0.13.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * New maintainer.
+  * Fix all packaging problems (closes: #703187, #703368).
+  * Switch to dh_python2 (closes: #654272).
+  * Update Standards-Version to 3.9.4 .
+
+  [ Bart Martens <bartm@debian.org> ]
+  * Update debian/watch .
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Thu, 21 Mar 2013 00:39:38 +0100
+
+python-gevent (0.13.6-1+nmu2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/control:
+    - Add python-all-dbg to Build-Depends to build extensions modules for
+      debug variants too. (Closes: #661342)
+    - Add ${python:Depends}, ${shlibs:Depends}, python-greenlet-dbg to
+      python-gevent-dbg's Depends.
+  * debian/rules: Install debugging symbols into the correct location so that
+    they are actually usable.
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Sun, 03 Mar 2013 15:46:09 +0100
+
+python-gevent (0.13.6-1+nmu1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix IPV6 DNS handling (closes: #690851)
+    - Patch thanks to Mike Gabriel.
+
+ -- Michael Gilbert <mgilbert@debian.org>  Mon, 12 Nov 2012 22:07:15 +0000
 
 python-gevent (0.13.6-1) unstable; urgency=low
 

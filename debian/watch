@@ -1,2 +1,4 @@
 version=3
-http://pypi.python.org/packages/source/g/gevent/gevent-(.*)\.tar\.gz
+opts=uversionmangle=s/(\d)[\.\-]?((?:rc|RC|pre)\.?\d+(?:-\d+)?)$/$1~$2/;s/^((?:\d+\.)*\d+)([ab]\d*)$/$1~$2/ \
+https://github.com/surfly/gevent/tags \
+.*/archive/(?:upstream/)?(?:v||version-|release-|X|R)(\d\S*)\.tar\.gz

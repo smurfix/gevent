@@ -1,44 +1,40 @@
 Source: python-gevent
 Priority: extra
-Maintainer: Örjan Persson <orange@fobie.net>
-Uploaders: Andreas Schuldei <andreas@debian.org>
-Build-Depends: debhelper (>= 7.0.50), python-support,
- libev-dev, libc-ares-dev, python-greenlet (>= 0.3.2), python-sphinx (>= 0.6),
- cython (>= 0.15), libc-ares-dev (>= 1.9), libev-dev (>= 1:4.15),
- python-setuptools
-Standards-Version: 3.9.2
+Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+Build-Depends: debhelper (>= 9), dh-python, autotools-dev, python-all-dev,
+ libevent-dev (>= 1.4), python-greenlet | python-codespeak-lib (<< 1.0),
+ python-sphinx (>= 1.0.7+dfsg), python-all-dbg
+Standards-Version: 3.9.6
 Section: python
 Homepage: http://www.gevent.org/
-X-Python-Version: >= 2.7
 
 Package: python-gevent-dbg
 Section: debug
 Architecture: any
-Depends: ${shlibs:Depends}, python-gevent (= ${binary:Version})
-Recommends: python-dbg
+Depends: ${misc:Depends}, python-gevent (= ${binary:Version}), ${shlibs:Depends}, ${python:Depends},
+ python-greenlet-dbg
 Description: gevent is a coroutine-based Python networking library - debugging symbols
- gevent uses greenlet to provide a high-level synchronous API on top of the
- libev event loop.
+ gevent uses greenlet to provide a high-level synchronous API on top of
+ libevent event loop.
  .
  This is the debugging symbols for gevent.
 
 Package: python-gevent-doc
 Section: doc
 Architecture: all
-Depends: ${shlibs:Depends}, libjs-jquery, libjs-underscore
+Depends: ${shlibs:Depends}, ${misc:Depends}, libjs-jquery, libjs-underscore
 Priority: optional
 Description: gevent is a coroutine-based Python networking library - documentation
- gevent uses greenlet to provide a high-level synchronous API on top of the
- libev event loop.
+ gevent uses greenlet to provide a high-level synchronous API on top of
+ libevent event loop.
  .
  This is the documentation for gevent.
 
 Package: python-gevent
 Section: python
 Architecture: any
-Depends: ${shlibs:Depends}, ${python:Depends}, python-greenlet
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-greenlet (>= 0.3.2) | python-codespeak-lib (<< 1.0)
 Suggests: python-gevent-doc, python-gevent-dbg, python-openssl
 Description: gevent is a coroutine-based Python networking library
- gevent uses greenlet to provide a high-level synchronous API on top of the
- libev event loop.
-
+ gevent uses greenlet to provide a high-level synchronous API on top of
+ libevent event loop.

@@ -1,20 +1,43 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
 
-export PYBUILD_NAME=gevent
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# TODO: check FTBFS if hardening is enabled
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+#DPKG_EXPORT_BUILDFLAGS = 1
+#include /usr/share/dpkg/buildflags.mk
 
 %:
-	dh $@ --with=python2 --buildsystem=pybuild
+	dh  $@ --parallel --with autotools_dev,python2
+
+override_dh_auto_build:
+	dh_auto_build
+	PYTHONPATH=.. make --directory doc/ html
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f $(CURDIR)/gevent/*.so
+	cd doc && make clean
+	rm -f $(CURDIR)/doc/gevent.*.rst $(CURDIR)/doc/changelog.rst
+	rm -rf $(CURDIR)/gevent.egg-info/
+	rm -f $(CURDIR)/greentest/testresults.sqlite3
 
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
 
-#override_dh_strip:
-#ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
-#	dh_strip -ppython-gevent --dbg-package=python-gevent-dbg
-#	dh_strip -ppython3-gevent --dbg-package=python3-gevent-dbg
-#endif
-#
+override_dh_strip:
+ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
+	dh_strip -p python-gevent --dbg-package=python-gevent-dbg
+endif
+
+# TODO: check for failures
+#override_dh_auto_test:
+#	cd $(CURDIR)/greentest && PYTHONPATH=.. ./testrunner.py --no-db
+
 override_dh_installdocs:
 	dh_installdocs --link-doc=python-gevent
 
-.PHONY: override_dh_auto_build override_dh_auto_clean override_dh_compress override_dh_strip override_dh_installdocs killem
+.PHONY: override_dh_auto_build override_dh_auto_clean override_dh_compress \
+	override_dh_strip override_dh_installdocs
