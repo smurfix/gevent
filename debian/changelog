@@ -1,3 +1,9 @@
+python-gevent (1.1.0~dev-8) smurf; urgency=medium
+
+  * upstream merge
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Fri, 29 May 2015 21:06:34 +0200
+
 python-gevent (1.1.0~dev-7) smurf; urgency=medium
 
   * Reintroduce py2 support
