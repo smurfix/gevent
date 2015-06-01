@@ -15,6 +15,6 @@ override_dh_compress:
 #endif
 #
 override_dh_installdocs:
+	$(MAKE) doc
 	dh_installdocs --link-doc=python-gevent
 
-.PHONY: override_dh_auto_build override_dh_auto_clean override_dh_compress override_dh_strip override_dh_installdocs killem
