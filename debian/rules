@@ -8,6 +8,10 @@ export PYBUILD_NAME=gevent
 override_dh_compress:
 	dh_compress -X.js -X_static/* -X _sources/* -X_sources/*/* -X.inv
 
+override_dh_auto_install:
+	dh_auto_install
+	rm debian/python-gevent//usr/lib/python2.7/dist-packages/gevent/_socket3.py
+
 #override_dh_strip:
 #ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
 #	dh_strip -ppython-gevent --dbg-package=python-gevent-dbg
