@@ -1,3 +1,9 @@
+python-gevent (1.1.0~dev-11) smurf; urgency=medium
+
+  * upstream merge to da98c8950
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 17 Jun 2015 02:40:21 +0200
+
 python-gevent (1.1.0~dev-9) smurf; urgency=medium
 
   * Don't ship _socket3 in py2 package
