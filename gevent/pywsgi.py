@@ -1,7 +1,6 @@
 # Copyright (c) 2005-2009, eventlet contributors
 # Copyright (c) 2009-2011, gevent contributors
 
-import six
 import errno
 import sys
 import time
@@ -15,7 +14,7 @@ except ImportError:
 from gevent import socket
 import gevent
 from gevent.server import StreamServer
-from gevent.hub import GreenletExit, PY3, reraise
+from gevent.hub import GreenletExit, PY3, reraise, text_type, integer_types
 
 
 __all__ = ['WSGIHandler', 'WSGIServer']
@@ -251,7 +250,7 @@ class WSGIHandler(object):
 
     def read_request(self, raw_requestline):
         self.requestline = raw_requestline.rstrip()
-        if not isinstance(self.requestline,six.text_type):
+        if not isinstance(self.requestline,text_type):
             self.requestline = self.requestline.decode('utf-8')
         words = self.requestline.split()
         if len(words) == 3:
@@ -420,8 +419,15 @@ class WSGIHandler(object):
         self.finalize_headers()
 
         towrite.extend((u'HTTP/1.1 %s\r\n' % self.status).encode('utf-8'))
-        for header in self.response_headers:
-            towrite.extend((u'%s: %s\r\n' % header).encode('utf-8'))
+        for k,v in self.response_headers:
+            if isinstance(k,text_type):
+                k = k.encode('utf-8')
+            if isinstance(v,text_type):
+                v = v.encode('utf-8')
+            elif isinstance(v,integer_types+(float,)):
+                v = str(v).encode('utf-8')
+            
+            towrite.extend(k+b': '+v+b'\r\n')
 
         towrite.extend(b'\r\n')
         if data:
@@ -429,7 +435,7 @@ class WSGIHandler(object):
                 ## Write the chunked encoding
                 towrite.extend((u"%x\r\n%s\r\n" % (len(data), data)).encode('utf-8'))
             else:
-                if isinstance(data,six.text_type):
+                if isinstance(data,text_type):
                     data = data.encode('utf-8')
                 towrite.extend(data)
         self._sendall(towrite)
