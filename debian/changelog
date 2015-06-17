@@ -1,3 +1,9 @@
+python-gevent (1.1.0~dev-13) smurf; urgency=medium
+
+  * upstream branch merge
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 17 Jun 2015 13:05:41 +0200
+
 python-gevent (1.1.0~dev-12) smurf; urgency=medium
 
   * Py3 compatibility
