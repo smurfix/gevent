@@ -1,5 +1,6 @@
 # Port of Python 3.3's socket module to gevent
 
+import six
 import io
 import time
 from gevent import _socketcommon
@@ -22,6 +23,8 @@ SocketIO = __socket__.SocketIO
 
 
 def _get_memory(string, offset):
+    if isinstance(string,six.text_type):
+        string = string.encode('utf-8')
     return memoryview(string)[offset:]
 
 

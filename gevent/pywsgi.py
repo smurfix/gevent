@@ -1,6 +1,7 @@
 # Copyright (c) 2005-2009, eventlet contributors
 # Copyright (c) 2009-2011, gevent contributors
 
+import six
 import errno
 import sys
 import time
@@ -211,6 +212,9 @@ class WSGIHandler(object):
         else:
             self.rfile = rfile
 
+    def readline(self, *a):
+        return self.rfile.readline(*a)
+
     def handle(self):
         try:
             while self.socket is not None:
@@ -230,12 +234,7 @@ class WSGIHandler(object):
         finally:
             if self.socket is not None:
                 try:
-                    # read out request data to prevent error: [Errno 104] Connection reset by peer
-                    try:
-                        self.socket._sock.recv(16384)
-                    finally:
-                        self.socket._sock.close()  # do not rely on garbage collection
-                        self.socket.close()
+                    self.socket.close()
                 except socket.error:
                     pass
             self.__dict__.pop('socket', None)
@@ -252,6 +251,8 @@ class WSGIHandler(object):
 
     def read_request(self, raw_requestline):
         self.requestline = raw_requestline.rstrip()
+        if not isinstance(self.requestline,six.text_type):
+            self.requestline = self.requestline.decode('utf-8')
         words = self.requestline.split()
         if len(words) == 3:
             self.command, self.path, self.request_version = words
@@ -418,16 +419,18 @@ class WSGIHandler(object):
         self.headers_sent = True
         self.finalize_headers()
 
-        towrite.extend('HTTP/1.1 %s\r\n' % self.status)
+        towrite.extend((u'HTTP/1.1 %s\r\n' % self.status).encode('utf-8'))
         for header in self.response_headers:
-            towrite.extend('%s: %s\r\n' % header)
+            towrite.extend((u'%s: %s\r\n' % header).encode('utf-8'))
 
-        towrite.extend('\r\n')
+        towrite.extend(b'\r\n')
         if data:
             if self.response_use_chunked:
                 ## Write the chunked encoding
-                towrite.extend("%x\r\n%s\r\n" % (len(data), data))
+                towrite.extend((u"%x\r\n%s\r\n" % (len(data), data)).encode('utf-8'))
             else:
+                if isinstance(data,six.text_type):
+                    data = data.encode('utf-8')
                 towrite.extend(data)
         self._sendall(towrite)
 
